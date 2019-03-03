@@ -1,0 +1,30 @@
+apply plugin: 'com.android.application'
+
+dependencies {
+    implementation project(':library')
+    implementation "com.android.support:appcompat-v7:${ANDROID_SUPPORT_VERSION}"
+    annotationProcessor project(':annotation:compiler')
+}
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+
+    defaultConfig {
+        applicationId 'com.bumptech.glide.samples.contacturi'
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+
+        versionCode 1
+        versionName '1.0'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+task run(type: Exec, dependsOn: 'installDebug') {
+    description 'Installs the APK and runs the main activity: "gradlew :samples:???:run"'
+    commandLine "${android.sdkDirectory}/platform-tools/adb", 'shell', 'am', 'start', '-n', 'com.bumptech.glide.samples.contacturi/.MainActivity'
+}

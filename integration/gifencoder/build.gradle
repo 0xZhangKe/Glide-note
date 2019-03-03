@@ -1,0 +1,36 @@
+apply plugin: 'com.android.library'
+
+dependencies {
+    implementation project(':library')
+
+    testImplementation project(":testutil")
+    testImplementation "com.google.truth:truth:${TRUTH_VERSION}"
+    testImplementation "junit:junit:${JUNIT_VERSION}"
+    testImplementation "org.mockito:mockito-core:${MOCKITO_VERSION}"
+    testImplementation "org.robolectric:robolectric:${ROBOLECTRIC_VERSION}"
+    testImplementation "com.android.support:support-v4:${ANDROID_SUPPORT_VERSION}"
+}
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION as int
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java', '../../third_party/gif_encoder/src/main/java']
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION as int
+        targetSdkVersion TARGET_SDK_VERSION as int
+
+        versionName = VERSION_NAME as String
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+apply from: "${rootProject.projectDir}/scripts/upload.gradle"

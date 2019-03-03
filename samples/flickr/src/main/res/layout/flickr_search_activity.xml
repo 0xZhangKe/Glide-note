@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <android.support.v4.view.PagerTabStrip
+                android:id="@+id/pager_tab_strip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top" />
+
+    </android.support.v4.view.ViewPager>
+
+    <LinearLayout
+        android:id="@+id/searching"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/translucent_black"
+        android:visibility="invisible"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/search_term"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:layout_marginBottom="10dp"/>
+
+        <ProgressBar
+            android:id="@+id/search_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"/>
+    </LinearLayout>
+</merge>

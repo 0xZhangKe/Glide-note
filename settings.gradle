@@ -1,0 +1,30 @@
+exec {
+    commandLine "git", "submodule", "update", "--init", "--recursive"
+    ignoreExitValue true
+}
+include ':library'
+include ':library:pmd'
+include ':library:findbugs'
+include ':library:test'
+include ':instrumentation'
+include ':annotation'
+include ':annotation:compiler'
+include ':annotation:compiler:test'
+include ':glide'
+include ':third_party:gif_decoder'
+include ':third_party:disklrucache'
+include ':samples:flickr'
+include ':samples:giphy'
+include ':samples:svg'
+include ':samples:gallery'
+include ':samples:contacturi'
+include ':samples:imgur'
+include ':integration'
+include ':integration:volley'
+include ':integration:okhttp'
+include ':integration:okhttp3'
+include ':integration:gifencoder'
+include ':integration:recyclerview'
+include ':testutil'
+
+rootProject.name = 'glide-parent'
