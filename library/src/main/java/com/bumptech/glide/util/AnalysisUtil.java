@@ -1,4 +1,4 @@
-package com.bumptech.glide;
+package com.bumptech.glide.util;
 
 import android.util.Log;
 
