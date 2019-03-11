@@ -24,29 +24,29 @@ import android.widget.ImageView;
 @SuppressWarnings("WeakerAccess")
 public abstract class ThumbnailImageViewTarget<T> extends ImageViewTarget<T> {
 
-  public ThumbnailImageViewTarget(ImageView view) {
-    super(view);
-  }
-
-  /**
-   * @deprecated Use {@link #waitForLayout()} insetad.
-   */
-  @Deprecated
-  @SuppressWarnings({"deprecation"})
-  public ThumbnailImageViewTarget(ImageView view, boolean waitForLayout) {
-    super(view, waitForLayout);
-  }
-
-  @Override
-  protected void setResource(@Nullable T resource) {
-    ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-    Drawable result = getDrawable(resource);
-    if (layoutParams != null && layoutParams.width > 0 && layoutParams.height > 0) {
-      result = new FixedSizeDrawable(result, layoutParams.width, layoutParams.height);
+    public ThumbnailImageViewTarget(ImageView view) {
+        super(view);
     }
 
-    view.setImageDrawable(result);
-  }
+    /**
+     * @deprecated Use {@link #waitForLayout()} insetad.
+     */
+    @Deprecated
+    @SuppressWarnings({"deprecation"})
+    public ThumbnailImageViewTarget(ImageView view, boolean waitForLayout) {
+        super(view, waitForLayout);
+    }
 
-  protected abstract Drawable getDrawable(T resource);
+    @Override
+    protected void setResource(@Nullable T resource) {
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        Drawable result = getDrawable(resource);
+        if (layoutParams != null && layoutParams.width > 0 && layoutParams.height > 0) {
+            result = new FixedSizeDrawable(result, layoutParams.width, layoutParams.height);
+        }
+
+        view.setImageDrawable(result);
+    }
+
+    protected abstract Drawable getDrawable(T resource);
 }
