@@ -70,6 +70,7 @@ public class ModelLoaderRegistry {
 
     // We're allocating in a loop to avoid allocating empty lists that will never have anything added
     // to them.
+    //通过 ModelLoader#handles 方法判断加载器是否可以处理当前模型，返回所有可以处理的加载器
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @NonNull
     public <A> List<ModelLoader<A, ?>> getModelLoaders(@NonNull A model) {

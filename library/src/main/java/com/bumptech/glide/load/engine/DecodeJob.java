@@ -270,6 +270,9 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
         }
     }
 
+    /**
+     * 初始化之后第一次运行时 runReason 为 INITIALIZE
+     */
     private void runWrapped() {
         switch (runReason) {
             case INITIALIZE:

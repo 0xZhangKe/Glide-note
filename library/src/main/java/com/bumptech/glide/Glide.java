@@ -261,6 +261,7 @@ public class Glide implements ComponentCallbacks2 {
                 annotationGeneratedModule != null
                         ? annotationGeneratedModule.getRequestManagerFactory() : null;
         builder.setRequestManagerFactory(factory);
+        //执行用户在 manifest 中配置的 GlideModule 接口中的方法
         for (com.bumptech.glide.module.GlideModule module : manifestModules) {
             module.applyOptions(applicationContext, builder);
         }

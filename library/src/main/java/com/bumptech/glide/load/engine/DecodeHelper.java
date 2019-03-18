@@ -203,6 +203,7 @@ final class DecodeHelper<Transcode> {
         if (!isLoadDataSet) {
             isLoadDataSet = true;
             loadData.clear();
+            //获取已注册的加载器中所有可以加载当前模型的加载器
             List<ModelLoader<Object, ?>> modelLoaders = glideContext.getRegistry().getModelLoaders(model);
             //noinspection ForLoopReplaceableByForEach to improve perf
             for (int i = 0, size = modelLoaders.size(); i < size; i++) {
