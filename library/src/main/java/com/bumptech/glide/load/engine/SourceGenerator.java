@@ -109,6 +109,7 @@ class SourceGenerator implements DataFetcherGenerator,
 
     @Override
     public void onDataReady(Object data) {
+        Log.d(TAG, "onDataReady(Object)....");
         DiskCacheStrategy diskCacheStrategy = helper.getDiskCacheStrategy();
         if (data != null && diskCacheStrategy.isDataCacheable(loadData.fetcher.getDataSource())) {
             dataToCache = data;

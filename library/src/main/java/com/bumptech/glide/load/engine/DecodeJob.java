@@ -197,6 +197,9 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
         pool.release(this);
     }
 
+    /**
+     * 通过优先级比对
+     */
     @Override
     public int compareTo(@NonNull DecodeJob<?> other) {
         int result = getPriority() - other.getPriority();
@@ -270,20 +273,29 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
         }
     }
 
+    private int runWrappedCount = 1;
+
     /**
      * 初始化之后第一次运行时 runReason 为 INITIALIZE
      */
     private void runWrapped() {
+        Log.d(TAG, "第 " + runWrappedCount + " 次运行 runWrapped()");
+        runWrappedCount++;
         switch (runReason) {
             case INITIALIZE:
+                Log.d(TAG, "case:INITIALIZE");
                 stage = getNextStage(Stage.INITIALIZE);
+                Log.d(TAG, "stage:" + stage);
                 currentGenerator = getNextGenerator();
+                Log.d(TAG, "currentGenerator:" + currentGenerator);
                 runGenerators();
                 break;
             case SWITCH_TO_SOURCE_SERVICE:
+                Log.d(TAG, "case:SWITCH_TO_SOURCE_SERVICE");
                 runGenerators();
                 break;
             case DECODE_DATA:
+                Log.d(TAG, "case:DECODE_DATA");
                 decodeFromRetrievedData();
                 break;
             default:
@@ -307,21 +319,25 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
 
     private void runGenerators() {
+        Log.d(TAG, "runGenerators()");
         currentThread = Thread.currentThread();
         startFetchTime = LogTime.getLogTime();
         boolean isStarted = false;
         while (!isCancelled && currentGenerator != null
                 && !(isStarted = currentGenerator.startNext())) {
+            Log.d(TAG, "runGenerators()->while");
             stage = getNextStage(stage);
             currentGenerator = getNextGenerator();
 
             if (stage == Stage.SOURCE) {
+                Log.d(TAG, "runGenerators()->while->stage == Stage.SOURCE");
                 reschedule();
                 return;
             }
         }
         // We've run out of stages and generators, give up.
         if ((stage == Stage.FINISHED || isCancelled) && !isStarted) {
+            Log.d(TAG, "runGenerators()->(stage == Stage.FINISHED || isCancelled) && !isStarted");
             notifyFailed();
         }
 
@@ -330,6 +346,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
 
     private void notifyFailed() {
+        Log.d(TAG, "notifyFailed()");
         setNotifiedOrThrow();
         GlideException e = new GlideException("Failed to load resource", new ArrayList<>(throwables));
         callback.onLoadFailed(e);
@@ -337,6 +354,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
 
     private void notifyComplete(Resource<R> resource, DataSource dataSource) {
+        Log.d(TAG, "notifyComplete()");
         setNotifiedOrThrow();
         callback.onResourceReady(resource, dataSource);
     }
@@ -371,6 +389,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
 
     @Override
     public void reschedule() {
+        Log.d(TAG, "reschedule()");
         runReason = RunReason.SWITCH_TO_SOURCE_SERVICE;
         callback.reschedule(this);
     }
@@ -378,15 +397,18 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     @Override
     public void onDataFetcherReady(Key sourceKey, Object data, DataFetcher<?> fetcher,
                                    DataSource dataSource, Key attemptedKey) {
+        Log.d(TAG, "onDataFetcherReady()");
         this.currentSourceKey = sourceKey;
         this.currentData = data;
         this.currentFetcher = fetcher;
         this.currentDataSource = dataSource;
         this.currentAttemptingKey = attemptedKey;
         if (Thread.currentThread() != currentThread) {
+            Log.d(TAG, "Thread.currentThread() != currentThread");
             runReason = RunReason.DECODE_DATA;
             callback.reschedule(this);
         } else {
+            Log.d(TAG, "Thread.currentThread() == currentThread");
             GlideTrace.beginSection("DecodeJob.decodeFromRetrievedData");
             try {
                 decodeFromRetrievedData();
@@ -399,6 +421,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     @Override
     public void onDataFetcherFailed(Key attemptedKey, Exception e, DataFetcher<?> fetcher,
                                     DataSource dataSource) {
+        Log.d(TAG, "onDataFetcherFailed()");
         fetcher.cleanup();
         GlideException exception = new GlideException("Fetching data failed", e);
         exception.setLoggingDetails(attemptedKey, dataSource, fetcher.getDataClass());
@@ -412,6 +435,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
 
     private void decodeFromRetrievedData() {
+        Log.d(TAG, "decodeFromRetrievedData()");
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             logWithTimeAndKey("Retrieved data", startFetchTime,
                     "data: " + currentData
@@ -433,6 +457,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     }
 
     private void notifyEncodeAndRelease(Resource<R> resource, DataSource dataSource) {
+        Log.d(TAG, "notifyEncodeAndRelease()");
         if (resource instanceof Initializable) {
             ((Initializable) resource).initialize();
         }
@@ -463,6 +488,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
 
     private <Data> Resource<R> decodeFromData(DataFetcher<?> fetcher, Data data,
                                               DataSource dataSource) throws GlideException {
+        Log.d(TAG, "decodeFromData()");
         try {
             if (data == null) {
                 return null;
@@ -481,12 +507,14 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     @SuppressWarnings("unchecked")
     private <Data> Resource<R> decodeFromFetcher(Data data, DataSource dataSource)
             throws GlideException {
+        Log.d(TAG, "decodeFromFetcher()");
         LoadPath<Data, ?, R> path = decodeHelper.getLoadPath((Class<Data>) data.getClass());
         return runLoadPath(data, dataSource, path);
     }
 
     @NonNull
     private Options getOptionsWithHardwareConfig(DataSource dataSource) {
+        Log.d(TAG, "getOptionsWithHardwareConfig()");
         Options options = this.options;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return options;
@@ -513,6 +541,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
 
     private <Data, ResourceType> Resource<R> runLoadPath(Data data, DataSource dataSource,
                                                          LoadPath<Data, ResourceType, R> path) throws GlideException {
+        Log.d(TAG, "runLoadPath()");
         Options options = getOptionsWithHardwareConfig(dataSource);
         DataRewinder<Data> rewinder = glideContext.getRegistry().getRewinder(data);
         try {
@@ -544,6 +573,7 @@ class DecodeJob<R> implements DataFetcherGenerator.FetcherReadyCallback,
     @NonNull
     <Z> Resource<Z> onResourceDecoded(DataSource dataSource,
                                       @NonNull Resource<Z> decoded) {
+        Log.d(TAG, "onResourceDecoded()");
         @SuppressWarnings("unchecked")
         Class<Z> resourceSubClass = (Class<Z>) decoded.get().getClass();
         Transformation<Z> appliedTransformation = null;
