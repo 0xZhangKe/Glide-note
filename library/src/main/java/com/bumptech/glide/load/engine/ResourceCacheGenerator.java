@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Generates {@link com.bumptech.glide.load.data.DataFetcher DataFetchers} from cache files
  * containing downsampled/transformed resource data.
+ * 通过文件获取资源，获取到则使用文件数据加载器加载数据
  */
 class ResourceCacheGenerator implements DataFetcherGenerator,
         DataFetcher.DataCallback<Object> {
@@ -82,6 +83,7 @@ class ResourceCacheGenerator implements DataFetcherGenerator,
                             transformation,
                             resourceClass,
                             helper.getOptions());
+            //获取磁盘缓存
             cacheFile = helper.getDiskCache().get(currentKey);
             if (cacheFile != null) {
                 sourceKey = sourceId;
