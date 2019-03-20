@@ -5,12 +5,14 @@ import android.content.ContextWrapper;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.widget.ImageView;
+
 import com.bumptech.glide.load.engine.Engine;
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.ImageViewTargetFactory;
 import com.bumptech.glide.request.target.ViewTarget;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,99 +22,99 @@ import java.util.Map.Entry;
  * required to load resources.
  */
 public class GlideContext extends ContextWrapper {
-  @VisibleForTesting
-  static final TransitionOptions<?, ?> DEFAULT_TRANSITION_OPTIONS =
-      new GenericTransitionOptions<>();
-  private final ArrayPool arrayPool;
-  private final Registry registry;
-  private final ImageViewTargetFactory imageViewTargetFactory;
-  private final RequestOptions defaultRequestOptions;
-  private final List<RequestListener<Object>> defaultRequestListeners;
-  private final Map<Class<?>, TransitionOptions<?, ?>> defaultTransitionOptions;
-  private final Engine engine;
-  private final boolean isLoggingRequestOriginsEnabled;
-  private final int logLevel;
+    @VisibleForTesting
+    static final TransitionOptions<?, ?> DEFAULT_TRANSITION_OPTIONS =
+            new GenericTransitionOptions<>();
+    private final ArrayPool arrayPool;
+    private final Registry registry;
+    private final ImageViewTargetFactory imageViewTargetFactory;
+    private final RequestOptions defaultRequestOptions;
+    private final List<RequestListener<Object>> defaultRequestListeners;
+    private final Map<Class<?>, TransitionOptions<?, ?>> defaultTransitionOptions;
+    private final Engine engine;
+    private final boolean isLoggingRequestOriginsEnabled;
+    private final int logLevel;
 
-  public GlideContext(
-      @NonNull Context context,
-      @NonNull ArrayPool arrayPool,
-      @NonNull Registry registry,
-      @NonNull ImageViewTargetFactory imageViewTargetFactory,
-      @NonNull RequestOptions defaultRequestOptions,
-      @NonNull Map<Class<?>, TransitionOptions<?, ?>> defaultTransitionOptions,
-      @NonNull List<RequestListener<Object>> defaultRequestListeners,
-      @NonNull Engine engine,
-      boolean isLoggingRequestOriginsEnabled,
-      int logLevel) {
-    super(context.getApplicationContext());
-    this.arrayPool = arrayPool;
-    this.registry = registry;
-    this.imageViewTargetFactory = imageViewTargetFactory;
-    this.defaultRequestOptions = defaultRequestOptions;
-    this.defaultRequestListeners = defaultRequestListeners;
-    this.defaultTransitionOptions = defaultTransitionOptions;
-    this.engine = engine;
-    this.isLoggingRequestOriginsEnabled = isLoggingRequestOriginsEnabled;
-    this.logLevel = logLevel;
-  }
+    public GlideContext(
+            @NonNull Context context,
+            @NonNull ArrayPool arrayPool,
+            @NonNull Registry registry,
+            @NonNull ImageViewTargetFactory imageViewTargetFactory,
+            @NonNull RequestOptions defaultRequestOptions,
+            @NonNull Map<Class<?>, TransitionOptions<?, ?>> defaultTransitionOptions,
+            @NonNull List<RequestListener<Object>> defaultRequestListeners,
+            @NonNull Engine engine,
+            boolean isLoggingRequestOriginsEnabled,
+            int logLevel) {
+        super(context.getApplicationContext());
+        this.arrayPool = arrayPool;
+        this.registry = registry;
+        this.imageViewTargetFactory = imageViewTargetFactory;
+        this.defaultRequestOptions = defaultRequestOptions;
+        this.defaultRequestListeners = defaultRequestListeners;
+        this.defaultTransitionOptions = defaultTransitionOptions;
+        this.engine = engine;
+        this.isLoggingRequestOriginsEnabled = isLoggingRequestOriginsEnabled;
+        this.logLevel = logLevel;
+    }
 
-  public List<RequestListener<Object>> getDefaultRequestListeners() {
-    return defaultRequestListeners;
-  }
+    public List<RequestListener<Object>> getDefaultRequestListeners() {
+        return defaultRequestListeners;
+    }
 
-  public RequestOptions getDefaultRequestOptions() {
-    return defaultRequestOptions;
-  }
+    public RequestOptions getDefaultRequestOptions() {
+        return defaultRequestOptions;
+    }
 
-  @SuppressWarnings("unchecked")
-  @NonNull
-  public <T> TransitionOptions<?, T> getDefaultTransitionOptions(@NonNull Class<T> transcodeClass) {
-    TransitionOptions<?, ?> result = defaultTransitionOptions.get(transcodeClass);
-    if (result == null) {
-      for (Entry<Class<?>, TransitionOptions<?, ?>> value : defaultTransitionOptions.entrySet()) {
-        if (value.getKey().isAssignableFrom(transcodeClass)) {
-          result = value.getValue();
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public <T> TransitionOptions<?, T> getDefaultTransitionOptions(@NonNull Class<T> transcodeClass) {
+        TransitionOptions<?, ?> result = defaultTransitionOptions.get(transcodeClass);
+        if (result == null) {
+            for (Entry<Class<?>, TransitionOptions<?, ?>> value : defaultTransitionOptions.entrySet()) {
+                if (value.getKey().isAssignableFrom(transcodeClass)) {
+                    result = value.getValue();
+                }
+            }
         }
-      }
+        if (result == null) {
+            result = DEFAULT_TRANSITION_OPTIONS;
+        }
+        return (TransitionOptions<?, T>) result;
     }
-    if (result == null) {
-      result = DEFAULT_TRANSITION_OPTIONS;
+
+    @NonNull
+    public <X> ViewTarget<ImageView, X> buildImageViewTarget(
+            @NonNull ImageView imageView, @NonNull Class<X> transcodeClass) {
+        return imageViewTargetFactory.buildTarget(imageView, transcodeClass);
     }
-    return (TransitionOptions<?, T>) result;
-  }
 
-  @NonNull
-  public <X> ViewTarget<ImageView, X> buildImageViewTarget(
-      @NonNull ImageView imageView, @NonNull Class<X> transcodeClass) {
-    return imageViewTargetFactory.buildTarget(imageView, transcodeClass);
-  }
+    @NonNull
+    public Engine getEngine() {
+        return engine;
+    }
 
-  @NonNull
-  public Engine getEngine() {
-    return engine;
-  }
+    @NonNull
+    public Registry getRegistry() {
+        return registry;
+    }
 
-  @NonNull
-  public Registry getRegistry() {
-    return registry;
-  }
+    public int getLogLevel() {
+        return logLevel;
+    }
 
-  public int getLogLevel() {
-    return logLevel;
-  }
+    @NonNull
+    public ArrayPool getArrayPool() {
+        return arrayPool;
+    }
 
-  @NonNull
-  public ArrayPool getArrayPool() {
-    return arrayPool;
-  }
-
-  /**
-   * Returns {@code true} if Glide should populate
-   * {@link com.bumptech.glide.load.engine.GlideException#setOrigin(Exception)} for failed requests.
-   *
-   * <p>This is an experimental API that may be removed in the future.
-   */
-  public boolean isLoggingRequestOriginsEnabled() {
-    return isLoggingRequestOriginsEnabled;
-  }
+    /**
+     * Returns {@code true} if Glide should populate
+     * {@link com.bumptech.glide.load.engine.GlideException#setOrigin(Exception)} for failed requests.
+     *
+     * <p>This is an experimental API that may be removed in the future.
+     */
+    public boolean isLoggingRequestOriginsEnabled() {
+        return isLoggingRequestOriginsEnabled;
+    }
 }
