@@ -708,6 +708,8 @@ DIRTY、CLEAN 代表操作类型，除了这两个还有 REMOVE 以及 READ，�
 
 ![公众号](static/qrcode_for_gsubscription.jpg)
 
+
 也可以加我微信：
+
 ![个人微信](static/qrcode_for_account.jpg)
 
